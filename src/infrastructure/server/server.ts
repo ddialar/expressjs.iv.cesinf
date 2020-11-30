@@ -17,9 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // TODO Implement a really basic endpoint
-// app.get('/hello', (req, res, next) => {
-//   res.send('Hello ExpressJS Workshop')
-// })
+app.get('/hello', (req, res, next) => {
+  res.send('Hello ExpressJS Workshop')
+})
 
 // app.use(authenticationRoutes)
 

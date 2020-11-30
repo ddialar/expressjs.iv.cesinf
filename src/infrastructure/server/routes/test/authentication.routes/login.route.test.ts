@@ -13,183 +13,186 @@ import { testingUsers, testingValidPlainPassword } from '../../../../../test/fix
 
 const { username, password, email } = testingUsers[0]
 
+// TODO Start working on this testing suite
 describe('[API] - Authentication endpoints', () => {
   describe('[POST] /login', () => {
-    const { connect, disconnect, models: { User } } = mongodb
+    // TODO Prepare data to be persisted on the database
+    // const { connect, disconnect, models: { User } } = mongodb
 
-    const mockedUserData: NewUserDatabaseDto = {
-      username,
-      password,
-      email
-    }
+    // const mockedUserData: NewUserDatabaseDto = {
+    //   username,
+    //   password,
+    //   email
+    // }
 
-    let request: SuperTest<Test>
+    // TODO Initialize the testing suite
+    // let request: SuperTest<Test>
 
-    beforeAll(async () => {
-      request = supertest(server)
-      await connect()
-    })
+    // beforeAll(async () => {
+    //   request = supertest(server)
+    //   await connect()
+    // })
 
-    beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
-    })
+    // beforeEach(async () => {
+    //   await User.deleteMany({})
+    //   await (new User(mockedUserData)).save()
+    // })
 
-    afterAll(async () => {
-      await User.deleteMany({})
-      await disconnect()
-    })
+    // afterAll(async () => {
+    //   await User.deleteMany({})
+    //   await disconnect()
+    // })
 
-    it('must return a 200 (OK) and the user authentication data', async (done) => {
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: testingValidPlainPassword
-      }
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(OK)
-        .then(async ({ body }) => {
-          const expectedFields = ['username', 'avatar', 'token']
-          const retrievedAuthenticationDataFields = Object.keys(body).sort()
-          expect(retrievedAuthenticationDataFields.sort()).toEqual(expectedFields.sort())
+    xit('must return a 200 (OK) and the user authentication data', async (done) => {
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: testingValidPlainPassword
+      // }
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(OK)
+      //   .then(async ({ body }) => {
+      //     const expectedFields = ['username', 'avatar', 'token']
+      //     const retrievedAuthenticationDataFields = Object.keys(body).sort()
+      //     expect(retrievedAuthenticationDataFields.sort()).toEqual(expectedFields.sort())
 
-          expect(body.username).toBe(loginData.username)
-          expect(body.avatar).toBeNull()
-          expect(body.token).not.toBeNull()
-        })
-
-      done()
-    })
-
-    it('must throw an UNAUTHORIZED (401) error when we use a non persisted username', async (done) => {
-      const loginData: LoginInputParamsDto = {
-        username: 'user@test.com',
-        password: testingValidPlainPassword
-      }
-      const errorMessage = 'Username not valid'
-
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(UNAUTHORIZED)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
+      //     expect(body.username).toBe(loginData.username)
+      //     expect(body.avatar).toBeNull()
+      //     expect(body.token).not.toBeNull()
+      //   })
 
       done()
     })
 
-    it('must throw an UNAUTHORIZED (401) error when we use a wrong password', async (done) => {
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: 'wr0np4$$w0rd'
-      }
-      const errorMessage = 'Password not valid'
+    xit('must throw an UNAUTHORIZED (401) error when we use a non persisted username', async (done) => {
+      // const loginData: LoginInputParamsDto = {
+      //   username: 'user@test.com',
+      //   password: testingValidPlainPassword
+      // }
+      // const errorMessage = 'Username not valid'
 
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(UNAUTHORIZED)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      done()
-    })
-
-    it('must throw an INTERNAL_SERVER_ERROR (500) when the retrieving user process fails', async (done) => {
-      jest.spyOn(userDataSource, 'getUserByUsername').mockImplementation(() => {
-        throw new GettingUserError('Testing error')
-      })
-
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: testingValidPlainPassword
-      }
-      const errorMessage = 'Internal Server Error'
-
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(INTERNAL_SERVER_ERROR)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      jest.spyOn(userDataSource, 'getUserByUsername').mockRestore()
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(UNAUTHORIZED)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
 
       done()
     })
 
-    it('must throw an INTERNAL_SERVER_ERROR (500) when the checking password process fails', async (done) => {
-      jest.spyOn(hashServices, 'checkPassword').mockImplementation(() => {
-        throw new CheckingPasswordError('Error checking password')
-      })
+    xit('must throw an UNAUTHORIZED (401) error when we use a wrong password', async (done) => {
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: 'wr0np4$$w0rd'
+      // }
+      // const errorMessage = 'Password not valid'
 
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: testingValidPlainPassword
-      }
-      const errorMessage = 'Internal Server Error'
-
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(INTERNAL_SERVER_ERROR)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      jest.spyOn(hashServices, 'checkPassword').mockRestore()
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(UNAUTHORIZED)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
 
       done()
     })
 
-    it('must throw an INTERNAL_SERVER_ERROR (500) when the getting token process fails', async (done) => {
-      jest.spyOn(token, 'generateToken').mockImplementation(() => {
-        throw new Error('Testing Error')
-      })
+    xit('must throw an INTERNAL_SERVER_ERROR (500) when the retrieving user process fails', async (done) => {
+      // jest.spyOn(userDataSource, 'getUserByUsername').mockImplementation(() => {
+      //   throw new GettingUserError('Testing error')
+      // })
 
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: testingValidPlainPassword
-      }
-      const errorMessage = 'Internal Server Error'
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: testingValidPlainPassword
+      // }
+      // const errorMessage = 'Internal Server Error'
 
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(INTERNAL_SERVER_ERROR)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(INTERNAL_SERVER_ERROR)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
 
-      jest.spyOn(token, 'generateToken').mockRestore()
+      // jest.spyOn(userDataSource, 'getUserByUsername').mockRestore()
 
       done()
     })
 
-    it('must throw an INTERNAL_SERVER_ERROR (500) when the updating login user data process fails', async (done) => {
-      jest.spyOn(userDataSource, 'updateUserById').mockImplementation(() => {
-        throw new Error('Testing Error')
-      })
+    xit('must throw an INTERNAL_SERVER_ERROR (500) when the checking password process fails', async (done) => {
+      // jest.spyOn(hashServices, 'checkPassword').mockImplementation(() => {
+      //   throw new CheckingPasswordError('Error checking password')
+      // })
 
-      const loginData: LoginInputParamsDto = {
-        username,
-        password: testingValidPlainPassword
-      }
-      const errorMessage = 'Internal Server Error'
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: testingValidPlainPassword
+      // }
+      // const errorMessage = 'Internal Server Error'
 
-      await request
-        .post('/login')
-        .send(loginData)
-        .expect(INTERNAL_SERVER_ERROR)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(INTERNAL_SERVER_ERROR)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
 
-      jest.spyOn(userDataSource, 'updateUserById').mockRestore()
+      // jest.spyOn(hashServices, 'checkPassword').mockRestore()
+
+      done()
+    })
+
+    xit('must throw an INTERNAL_SERVER_ERROR (500) when the getting token process fails', async (done) => {
+      // jest.spyOn(token, 'generateToken').mockImplementation(() => {
+      //   throw new Error('Testing Error')
+      // })
+
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: testingValidPlainPassword
+      // }
+      // const errorMessage = 'Internal Server Error'
+
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(INTERNAL_SERVER_ERROR)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
+
+      // jest.spyOn(token, 'generateToken').mockRestore()
+
+      done()
+    })
+
+    xit('must throw an INTERNAL_SERVER_ERROR (500) when the updating login user data process fails', async (done) => {
+      // jest.spyOn(userDataSource, 'updateUserById').mockImplementation(() => {
+      //   throw new Error('Testing Error')
+      // })
+
+      // const loginData: LoginInputParamsDto = {
+      //   username,
+      //   password: testingValidPlainPassword
+      // }
+      // const errorMessage = 'Internal Server Error'
+
+      // await request
+      //   .post('/login')
+      //   .send(loginData)
+      //   .expect(INTERNAL_SERVER_ERROR)
+      //   .then(async ({ text }) => {
+      //     expect(text).toBe(errorMessage)
+      //   })
+
+      // jest.spyOn(userDataSource, 'updateUserById').mockRestore()
 
       done()
     })

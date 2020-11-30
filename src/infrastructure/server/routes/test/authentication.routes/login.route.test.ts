@@ -17,68 +17,68 @@ const { username, password, email } = testingUsers[0]
 describe('[API] - Authentication endpoints', () => {
   describe('[POST] /login', () => {
     // TODO Prepare data to be persisted on the database
-    // const { connect, disconnect, models: { User } } = mongodb
+    const { connect, disconnect, models: { User } } = mongodb
 
-    // const mockedUserData: NewUserDatabaseDto = {
-    //   username,
-    //   password,
-    //   email
-    // }
+    const mockedUserData: NewUserDatabaseDto = {
+      username,
+      password,
+      email
+    }
 
     // TODO Initialize the testing suite
-    // let request: SuperTest<Test>
+    let request: SuperTest<Test>
 
-    // beforeAll(async () => {
-    //   request = supertest(server)
-    //   await connect()
-    // })
+    beforeAll(async () => {
+      request = supertest(server)
+      await connect()
+    })
 
-    // beforeEach(async () => {
-    //   await User.deleteMany({})
-    //   await (new User(mockedUserData)).save()
-    // })
+    beforeEach(async () => {
+      await User.deleteMany({})
+      await (new User(mockedUserData)).save()
+    })
 
-    // afterAll(async () => {
-    //   await User.deleteMany({})
-    //   await disconnect()
-    // })
+    afterAll(async () => {
+      await User.deleteMany({})
+      await disconnect()
+    })
 
-    xit('must return a 200 (OK) and the user authentication data', async (done) => {
-      // const loginData: LoginInputParamsDto = {
-      //   username,
-      //   password: testingValidPlainPassword
-      // }
-      // await request
-      //   .post('/login')
-      //   .send(loginData)
-      //   .expect(OK)
-      //   .then(async ({ body }) => {
-      //     const expectedFields = ['username', 'avatar', 'token']
-      //     const retrievedAuthenticationDataFields = Object.keys(body).sort()
-      //     expect(retrievedAuthenticationDataFields.sort()).toEqual(expectedFields.sort())
+    it('must return a 200 (OK) and the user authentication data', async (done) => {
+      const loginData: LoginInputParamsDto = {
+        username,
+        password: testingValidPlainPassword
+      }
+      await request
+        .post('/login')
+        .send(loginData)
+        .expect(OK)
+        .then(async ({ body }) => {
+          const expectedFields = ['username', 'avatar', 'token']
+          const retrievedAuthenticationDataFields = Object.keys(body).sort()
+          expect(retrievedAuthenticationDataFields.sort()).toEqual(expectedFields.sort())
 
-      //     expect(body.username).toBe(loginData.username)
-      //     expect(body.avatar).toBeNull()
-      //     expect(body.token).not.toBeNull()
-      //   })
+          expect(body.username).toBe(loginData.username)
+          expect(body.avatar).toBeNull()
+          expect(body.token).not.toBeNull()
+        })
 
       done()
     })
 
-    xit('must throw an UNAUTHORIZED (401) error when we use a non persisted username', async (done) => {
-      // const loginData: LoginInputParamsDto = {
-      //   username: 'user@test.com',
-      //   password: testingValidPlainPassword
-      // }
-      // const errorMessage = 'Username not valid'
+    it('must throw an UNAUTHORIZED (401) error when we use a non persisted username', async (done) => {
+      const loginData: LoginInputParamsDto = {
+        username: 'user@test.com',
+        password: testingValidPlainPassword
+      }
+      const errorMessage = 'Username not valid'
 
-      // await request
-      //   .post('/login')
-      //   .send(loginData)
-      //   .expect(UNAUTHORIZED)
-      //   .then(async ({ text }) => {
-      //     expect(text).toBe(errorMessage)
-      //   })
+      await request
+        .post('/login')
+        .send(loginData)
+        .expect(UNAUTHORIZED)
+        .then(async ({ text }) => {
+          expect(text).toBe(errorMessage)
+        })
 
       done()
     })

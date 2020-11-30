@@ -157,8 +157,8 @@ module.exports = {
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
-  testRegex: ['^.*\\.(test|spec)\\.ts$'],
-  // testRegex: ['authentication.routes/login.route.test.ts'],
+  // testRegex: ['^.*\\.(test|spec)\\.ts$'],
+  testRegex: ['authentication.routes/login.route.test.ts'],
   // testRegex: ['user.routes/profile.route.test.ts'],
 
   // This option allows the use of a custom results processor

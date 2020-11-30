@@ -7,10 +7,10 @@ const authenticationRoutes: Router = express.Router()
 
 authenticationRoutes.post('/login', async (req, res, next) => {
   // TODO Retrieve the username and password from the request
-  // const { username, password } = req.body as LoginInputParamsDto
+  const { username, password } = req.body as LoginInputParamsDto
   try {
     // TODO Run the login
-    // res.json(await login(username, password))
+    res.json(await login(username, password))
   } catch (error) {
     next(error)
   }

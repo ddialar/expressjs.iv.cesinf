@@ -142,52 +142,52 @@ describe('[API] - User endpoints', () => {
   // TODO Start working on this testing suite
   describe('[PUT] /profile', () => {
     // TODO Prepare data to be persisted on the database
-    // const mockedUserData: NewUserDatabaseDto = {
-    //   username,
-    //   password,
-    //   email
-    // }
+    const mockedUserData: NewUserDatabaseDto = {
+      username,
+      password,
+      email
+    }
 
     // TODO Prepare the new profile data
-    // const payload: NewUserProfileDto = {
-    //   avatar,
-    //   name,
-    //   surname
-    // }
+    const payload: NewUserProfileDto = {
+      avatar,
+      name,
+      surname
+    }
 
     // TODO Initialize the testing suite
-    // beforeEach(async () => {
-    //   await User.deleteMany({})
-    //   await (new User(mockedUserData)).save()
-    // })
+    beforeEach(async () => {
+      await User.deleteMany({})
+      await (new User(mockedUserData)).save()
+    })
 
-    // afterEach(async () => {
-    //   await User.deleteMany({})
-    // })
+    afterEach(async () => {
+      await User.deleteMany({})
+    })
 
-    xit('must return a 200 (OK) and the user\'s profile data', async (done) => {
-      // const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
-      // const token = `bearer ${validToken}`
+    it('must return a 200 (OK) and the user\'s profile data', async (done) => {
+      const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
+      const token = `bearer ${validToken}`
 
-      // await request
-      //   .put('/profile')
-      //   .set('Authorization', token)
-      //   .send(payload)
-      //   .expect(OK)
-      //   .then(async ({ body }) => {
-      //     const userProfile = body as UserProfileDto
-      //     const expectedFields = ['username', 'email', 'name', 'surname', 'avatar']
+      await request
+        .put('/profile')
+        .set('Authorization', token)
+        .send(payload)
+        .expect(OK)
+        .then(async ({ body }) => {
+          const userProfile = body as UserProfileDto
+          const expectedFields = ['username', 'email', 'name', 'surname', 'avatar']
 
-      //     const userProfileFields = Object.keys(userProfile).sort()
-      //     expect(userProfileFields.sort()).toEqual(expectedFields.sort())
+          const userProfileFields = Object.keys(userProfile).sort()
+          expect(userProfileFields.sort()).toEqual(expectedFields.sort())
 
-      //     expect(userProfile.username).toBe(originalUser.username)
-      //     expect(userProfile.email).toBe(originalUser.email)
+          expect(userProfile.username).toBe(originalUser.username)
+          expect(userProfile.email).toBe(originalUser.email)
 
-      //     expect(userProfile.name).toBe(payload.name)
-      //     expect(userProfile.surname).toBe(payload.surname)
-      //     expect(userProfile.avatar).toBe(payload.avatar)
-      //   })
+          expect(userProfile.name).toBe(payload.name)
+          expect(userProfile.surname).toBe(payload.surname)
+          expect(userProfile.avatar).toBe(payload.avatar)
+        })
 
       done()
     })

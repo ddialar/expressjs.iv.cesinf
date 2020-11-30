@@ -1,0 +1,7 @@
+.vscode
+node_modules
+dist
+src/test/fixtures/assets/users.json
+src/test/fixtures/assets/posts.json
+
+.env

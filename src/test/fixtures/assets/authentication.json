@@ -1,0 +1,42 @@
+{
+  "validHashedPassword": {
+    "value": "$2b$04$efXGxLX0ONXXJe3pIDX/vOzr2oIMFMysnd.NZ6unHrPWONpHyumYS",
+    "comments": {
+      "plainPasswd": "123456",
+      "hashedWith": "bcrypt",
+      "saltCalue": 3
+    }
+  },
+  "validPlainPassword": {
+    "value": "123456",
+    "comments": {}
+  },
+  "wrongPlainPassword": {
+    "value": "wr0ngp4$$w0rd",
+    "comments": {}
+  },
+  "validJwtToken": {
+    "value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiaWF0IjoxNjA2MTc1NDQyLCJleHAiOjQ3NTk3NzU0NDJ9.A9moTZNNS1fgbWts6gwWkckEbACXl8p9_WrB2kzAkXi8dZbN5n1NoZmZYID4JsyQlsAJCgJBNoaILVjYl2tMNg",
+    "comments": {
+      "username": "test@mail.com",
+      "algorithm": "HS512",
+      "expiresAt": "2120-10-30T23:50:42.000Z"
+    }
+  },
+  "validJwtTokenForNonPersistedUser": {
+    "value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJub24ucGVyc2lzdGVkQG1haWwuY29tIiwiaWF0IjoxNjA2MjAzNzg5LCJleHAiOjQ3NTk4MDM3ODl9.xmXOAhf6hiIBL455RTPwK1NTS8j5E24j_usqowpQht-2tDkxDfKceGJVtKXAEdhB_AWPaWmRHfYsWsiNENCc4A",
+    "comments": {
+      "username": "non.persisted@mail.com",
+      "algorithm": "HS512",
+      "expiresAt": "2120-10-31T07:43:09.000Z"
+    }
+  },
+  "expiredJwtToken": {
+    "value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiaWF0IjoxNjA2MDgzMDcyLCJleHAiOjE2MDYwODMwNzN9.ycZGCsI1cP_ETtAy1hwSGQ2POzz3msP3utTUUaUgB4UaND4c8ONobFAZl9Qn__2U2_EyZeySB6tiuwKGoCxASg",
+    "comments": {
+      "username": "test@mail.com",
+      "algorithm": "HS512",
+      "expiresAt": "2020-11-22T22:11:13.000Z"
+    }
+  }
+}

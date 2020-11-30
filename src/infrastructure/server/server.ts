@@ -3,8 +3,8 @@ import express, { Request, Response, NextFunction } from 'express'
 import bodyParser from 'body-parser'
 
 // TODO Import the Swagger configuration modules
-// import { serve as swaggerServe, setup as swaggerSetup } from 'swagger-ui-express'
-// import { swaggerDocument, swaggerOptions } from './apidoc'
+import { serve as swaggerServe, setup as swaggerSetup } from 'swagger-ui-express'
+import { swaggerDocument, swaggerOptions } from './apidoc'
 
 import { ApiError } from '../../domain/errors'
 import { authenticationRoutes, userRoutes } from './routes'
@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // TODO Define the API documentation endpoint
-// app.use('/__/apidoc', swaggerServe, swaggerSetup(swaggerDocument, swaggerOptions))
+app.use('/__/apidoc', swaggerServe, swaggerSetup(swaggerDocument, swaggerOptions))
 
 app.use(authenticationRoutes)
 app.use(userRoutes)

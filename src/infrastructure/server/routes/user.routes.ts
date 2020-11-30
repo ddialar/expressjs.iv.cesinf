@@ -20,11 +20,14 @@ userRoutes.get('/profile', ensureAuthenticated, async (req: RequestDto, res, nex
 })
 
 userRoutes.put('/profile', ensureAuthenticated, async (req: RequestDto, res, next) => {
-  const { id } = req.user as UserDomainModel
-  const newProfileData = req.body as NewUserProfileDto
+  // TODO Retrieve the user ID from the request.
+  // const { id } = req.user as UserDomainModel
+  // TODO Retrieve the new profile data.
+  // const newProfileData = req.body as NewUserProfileDto
 
   try {
-    res.json(await updateUserProfile(id, newProfileData))
+    // TODO Update the profile
+    // res.json(await updateUserProfile(id, newProfileData))
   } catch (error) {
     next(error)
   }

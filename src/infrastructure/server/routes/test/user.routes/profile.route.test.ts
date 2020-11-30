@@ -6,7 +6,7 @@ import { mongodb } from '../../../../orm'
 import { BAD_REQUEST, OK, FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR } from '../../../../../domain/errors'
 import { UserProfileDomainModel } from '../../../../../domain/models'
 import { userDataSource } from '../../../../dataSources'
-import { NewUserDatabaseDto, NewUserProfileDto, UserDto, UserProfileDto } from '../../../../dtos'
+import { UserProfileDto } from '../../../../dtos'
 
 import { testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken } from '../../../../../test/fixtures'
 
@@ -16,146 +16,33 @@ interface TestingProfileDto extends UserProfileDto {
   password: string
 }
 
+// TODO Start working on this testing suite
 describe('[API] - User endpoints', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  // TODO Initialize the global testing suite
+  // const { connect, disconnect, models: { User } } = mongodb
 
-  let request: SuperTest<Test>
+  // let request: SuperTest<Test>
 
-  beforeAll(async () => {
-    request = supertest(server)
-    await connect()
-  })
+  // beforeAll(async () => {
+  //   request = supertest(server)
+  //   await connect()
+  // })
 
-  afterAll(async () => {
-    await disconnect()
-  })
+  // afterAll(async () => {
+  //   await disconnect()
+  // })
 
   describe('[GET] /profile', () => {
-    const mockedUserData: TestingProfileDto = {
-      username,
-      password,
-      email,
-      avatar,
-      name,
-      surname
-    }
-
-    beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
-    })
-
-    afterEach(async () => {
-      await User.deleteMany({})
-    })
-
-    it('must return a 200 (OK) and the user\'s profile data', async (done) => {
-      const token = `bearer ${validToken}`
-      await request
-        .get('/profile')
-        .set('Authorization', token)
-        .expect(OK)
-        .then(async ({ body }) => {
-          const userProfile = body as UserProfileDomainModel
-          const expectedFields = ['username', 'email', 'name', 'surname', 'avatar']
-
-          const userProfileFields = Object.keys(userProfile).sort()
-          expect(userProfileFields.sort()).toEqual(expectedFields.sort())
-
-          expect(userProfile.username).toBe(mockedUserData.username)
-          expect(userProfile.email).toBe(mockedUserData.email)
-          expect(userProfile.name).toBe(mockedUserData.name)
-          expect(userProfile.surname).toBe(mockedUserData.surname)
-          expect(userProfile.avatar).toBe(mockedUserData.avatar)
-        })
-
-      done()
-    })
-
-    it('must return a FORBIDDEN (403) error when we send an empty token', async (done) => {
-      const token = ''
-      const errorMessage = 'Required token was not provided'
-
-      await request
-        .get('/profile')
-        .set('Authorization', token)
-        .expect(FORBIDDEN)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      done()
-    })
-
-    it('must return an UNAUTHORIZED (401) error when we send an expired token', async (done) => {
-      const token = `bearer ${testingExpiredJwtToken}`
-      const errorMessage = 'Token expired'
-
-      await request
-        .get('/profile')
-        .set('Authorization', token)
-        .expect(UNAUTHORIZED)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      done()
-    })
-
-    it('must return an BAD_REQUEST (400) error when we send an expired token', async (done) => {
-      const token = `bearer ${testingValidJwtTokenForNonPersistedUser}`
-      const errorMessage = 'User does not exist'
-
-      await request
-        .get('/profile')
-        .set('Authorization', token)
-        .expect(BAD_REQUEST)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      done()
-    })
-
-    it('must return an INTERNAL_SERVER_ERROR (500) when the updating logout user data process fails', async (done) => {
-      jest.spyOn(userDataSource, 'getUserProfileById').mockImplementation(() => {
-        throw new Error('Testing Error')
-      })
-
-      const token = `bearer ${validToken}`
-      const errorMessage = 'Internal Server Error'
-
-      await request
-        .get('/profile')
-        .set('Authorization', token)
-        .expect(INTERNAL_SERVER_ERROR)
-        .then(async ({ text }) => {
-          expect(text).toBe(errorMessage)
-        })
-
-      jest.spyOn(userDataSource, 'getUserProfileById').mockRestore()
-
-      done()
-    })
-  })
-
-  // TODO Start working on this testing suite
-  describe('[PUT] /profile', () => {
-    // TODO Prepare data to be persisted on the database
-    // const mockedUserData: NewUserDatabaseDto = {
+    // TODO Initialize the testing suite
+    // const mockedUserData: TestingProfileDto = {
     //   username,
     //   password,
-    //   email
-    // }
-
-    // TODO Prepare the new profile data
-    // const payload: NewUserProfileDto = {
+    //   email,
     //   avatar,
     //   name,
     //   surname
     // }
 
-    // TODO Initialize the testing suite
     // beforeEach(async () => {
     //   await User.deleteMany({})
     //   await (new User(mockedUserData)).save()
@@ -166,40 +53,35 @@ describe('[API] - User endpoints', () => {
     // })
 
     xit('must return a 200 (OK) and the user\'s profile data', async (done) => {
-      // const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
       // const token = `bearer ${validToken}`
-
       // await request
-      //   .put('/profile')
+      //   .get('/profile')
       //   .set('Authorization', token)
-      //   .send(payload)
       //   .expect(OK)
       //   .then(async ({ body }) => {
-      //     const userProfile = body as UserProfileDto
+      //     const userProfile = body as UserProfileDomainModel
       //     const expectedFields = ['username', 'email', 'name', 'surname', 'avatar']
 
       //     const userProfileFields = Object.keys(userProfile).sort()
       //     expect(userProfileFields.sort()).toEqual(expectedFields.sort())
 
-      //     expect(userProfile.username).toBe(originalUser.username)
-      //     expect(userProfile.email).toBe(originalUser.email)
-
-      //     expect(userProfile.name).toBe(payload.name)
-      //     expect(userProfile.surname).toBe(payload.surname)
-      //     expect(userProfile.avatar).toBe(payload.avatar)
+      //     expect(userProfile.username).toBe(mockedUserData.username)
+      //     expect(userProfile.email).toBe(mockedUserData.email)
+      //     expect(userProfile.name).toBe(mockedUserData.name)
+      //     expect(userProfile.surname).toBe(mockedUserData.surname)
+      //     expect(userProfile.avatar).toBe(mockedUserData.avatar)
       //   })
 
       done()
     })
 
-    xit('must return a FORBIDDEN (403) error when we send an expired token', async (done) => {
+    xit('must return a FORBIDDEN (403) error when we send an empty token', async (done) => {
       // const token = ''
       // const errorMessage = 'Required token was not provided'
 
       // await request
-      //   .put('/profile')
+      //   .get('/profile')
       //   .set('Authorization', token)
-      //   .send(payload)
       //   .expect(FORBIDDEN)
       //   .then(async ({ text }) => {
       //     expect(text).toBe(errorMessage)
@@ -215,7 +97,6 @@ describe('[API] - User endpoints', () => {
       // await request
       //   .get('/profile')
       //   .set('Authorization', token)
-      //   .send(payload)
       //   .expect(UNAUTHORIZED)
       //   .then(async ({ text }) => {
       //     expect(text).toBe(errorMessage)
@@ -231,7 +112,6 @@ describe('[API] - User endpoints', () => {
       // await request
       //   .get('/profile')
       //   .set('Authorization', token)
-      //   .send(payload)
       //   .expect(BAD_REQUEST)
       //   .then(async ({ text }) => {
       //     expect(text).toBe(errorMessage)
@@ -251,7 +131,6 @@ describe('[API] - User endpoints', () => {
       // await request
       //   .get('/profile')
       //   .set('Authorization', token)
-      //   .send(payload)
       //   .expect(INTERNAL_SERVER_ERROR)
       //   .then(async ({ text }) => {
       //     expect(text).toBe(errorMessage)

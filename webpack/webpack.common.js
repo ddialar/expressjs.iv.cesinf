@@ -4,13 +4,15 @@ module.exports = {
   module: {
     rules: [
       {
-        exclude: [
-          path.resolve(__dirname, '../node_modules'),
-          path.resolve(__dirname, '../src/test'),
-          /\.test\.ts/
-        ],
         test: /\.ts$/,
-        use: 'ts-loader'
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, './tsconfig.webpack.json')
+            }
+          }
+        ]
       }
     ]
   },
@@ -19,16 +21,7 @@ module.exports = {
     path: path.resolve(__dirname, '../dist')
   },
   resolve: {
-    extensions: ['.ts', '.js'],
-    alias: {
-      '@package': path.resolve(__dirname, '../package.json'),
-      '@manifest': path.resolve(__dirname, '../manifest.json'),
-      '@core': path.resolve(__dirname, '../src/core'),
-      '@ports': path.resolve(__dirname, '../src/ports'),
-      '@adapters': path.resolve(__dirname, '../src/adapters'),
-      '@apiDocumentation': path.resolve(__dirname, '../src/adapters/transportLayer/apiDocumentation'),
-      '@utils': path.resolve(__dirname, '../src/utils')
-    }
+    extensions: ['.ts', '.js']
   },
   target: 'node'
 }

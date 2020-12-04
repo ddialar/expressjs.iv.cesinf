@@ -9,7 +9,6 @@ const common = require('./webpack.common.js')
 
 module.exports = merge(common, {
   mode: 'production',
-  devtool: 'none',
   entry: [path.join(__dirname, '../src/app.ts')],
   node: {
     __dirname: false,

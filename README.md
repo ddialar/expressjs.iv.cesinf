@@ -24,6 +24,18 @@ cd expressjs.iv.cesinf
 npm i
 ```
 
+### Advertencia
+
+Si hemos llegado a este punto y al abrir el código, el editor nos marca determinados errores en algunos arcivos de testing, es normal. Se debe a que estas suites de testing requiren de una serie de archivos de datos que no están presentes en el repositorio, sino que se generan automáticamente cada vez que se ejecutan los tests.
+
+Si aún no queremos ejecutar los tests pero sí hacer que desaparezcan los errores, simplemente ejecutamos el siguiente script:
+
+```sh
+npm run test_mock:data
+```
+
+Esto generará los archivos que los archivos de testing están esperando pero debemos tener en cuenta que el contenido de estos archivos de datos para testing, se regeneran cada vez que lanzamos los tests.
+
 ## Proceso de verificación de la instalación
 
 En la rama `master`, ejecutamos la siguiente instrucción:

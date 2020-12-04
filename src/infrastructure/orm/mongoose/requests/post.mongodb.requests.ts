@@ -3,7 +3,7 @@ import { PostCommentDto, PostDto, PostLikeOwnerDto } from './../../../dtos/post.
 
 export const create = async (post: PostDto): Promise<PostDto | null> => {
   const createdPost = await (new Post(post)).save()
-  return createdPost ? createdPost.toJSON() : null
+  return createdPost ? createdPost.toJSON() as PostDto : null
 }
 
 // Official documentation: https://mongoosejs.com/docs/api.html#model_Model.findOneAndUpdate

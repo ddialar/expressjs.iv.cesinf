@@ -1,14 +1,14 @@
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 import { PostDomainModel, UserDomainModel } from '../../../models'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers, cleanPostsCollection, savePosts, getPostById } from '../../../../test/fixtures'
 
 import { deletePostComment } from '../..'
 import { DeletingPostCommentError, GettingPostCommentError, PostCommentNotFoundError, UnauthorizedPostCommentDeletingError } from '../../../errors'
 import { PostDto } from '../../../../infrastructure/dtos'
 
 describe('[SERVICES] Post - deletePostComment', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedPosts = testingLikedAndCommentedPersistedDtoPosts as PostDto[]
   const selectedPost = testingLikedAndCommentedPersistedDomainModelPosts[0] as PostDomainModel
@@ -22,12 +22,12 @@ describe('[SERVICES] Post - deletePostComment', () => {
   })
 
   beforeEach(async () => {
-    await Post.deleteMany({})
-    await Post.insertMany(mockedPosts)
+    await cleanPostsCollection()
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 
@@ -38,7 +38,7 @@ describe('[SERVICES] Post - deletePostComment', () => {
 
     await deletePostComment(postId, commentId, commentOwnerId)
 
-    const { comments: updatedDtoComments } = (await Post.findById(postId))?.toJSON() as PostDto
+    const { comments: updatedDtoComments } = await getPostById(postId)
 
     expect(updatedDtoComments).toHaveLength(selectedPost.comments.length - 1)
     expect(updatedDtoComments.map(({ _id }) => _id).includes(commentId)).toBeFalsy()

@@ -1,6 +1,6 @@
 import { lorem } from 'faker'
 import { mongodb } from '../../../../infrastructure/orm'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers, savePosts, cleanPostsCollection } from '../../../../test/fixtures'
 
 import { createPostComment } from '../../'
 import { PostDomainModel } from '../../../models'
@@ -8,7 +8,7 @@ import { CreatingPostCommentError } from '../../../errors'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 
 describe('[SERVICES] Post - createPostComment', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedPosts = testingLikedAndCommentedPersistedDomainModelPosts as PostDomainModel[]
   const originalPost = mockedPosts[0]
@@ -16,11 +16,11 @@ describe('[SERVICES] Post - createPostComment', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(testingLikedAndCommentedPersistedDtoPosts)
+    await savePosts(testingLikedAndCommentedPersistedDtoPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

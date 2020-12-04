@@ -2,7 +2,7 @@ import { connect, disconnect } from '../../../core'
 import { User } from '../../../models'
 import { UserDto, NewUserDatabaseDto } from '../../../../../dtos'
 import { getUtcTimestampIsoString } from '../../../../../../common'
-import { testingUsers } from '../../../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, saveUser } from '../../../../../../test/fixtures'
 
 import { updateById } from '../../user.mongodb.requests'
 
@@ -20,17 +20,17 @@ describe('[ORM] MongoDB - updateById', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
   it('must update several allowed fields successfully', async (done) => {
     const newUserData: NewUserDatabaseDto = { ...mockedUserData }
-    await (new User(newUserData)).save()
+    await saveUser(newUserData)
 
     const originalUser = (await User.findOne({ username: newUserData.username }))?.toJSON() as UserDto
 
@@ -47,11 +47,11 @@ describe('[ORM] MongoDB - updateById', () => {
     expect(originalUser.createdAt).not.toBeNull()
     expect(originalUser.updatedAt).not.toBeNull()
 
-    expect(originalUser.name).toBeNull()
-    expect(originalUser.surname).toBeNull()
-    expect(originalUser.avatar).toBeNull()
-    expect(originalUser.token).toBeNull()
-    expect(originalUser.lastLoginAt).toBeNull()
+    expect(originalUser.name).toBe('')
+    expect(originalUser.surname).toBe('')
+    expect(originalUser.avatar).toBe('')
+    expect(originalUser.token).toBe('')
+    expect(originalUser.lastLoginAt).toBe('')
 
     const payload = {
       password: '$2b$04$fXK3oNgOHp5utyRacBhDXu88ZeCFIl1rqdzWfDi4K1Vq99ufoA1d.',

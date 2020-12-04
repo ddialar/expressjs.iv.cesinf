@@ -4,10 +4,26 @@ const { merge } = require('webpack-merge')
 const nodeExternals = require('webpack-node-externals')
 const path = require('path')
 const webpack = require('webpack')
-const dotenv = require('dotenv').config({ path: path.join(__dirname, '../env/.env.dev') })
+// NOTE Pay attention to have defined the '.env' file bedore running this consigutation.
+const dotenv = require('dotenv').config({ path: path.join(__dirname, '../env/.env') })
 const common = require('./webpack.common.js')
 
 module.exports = merge(common, {
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, './tsconfig.webpack.json')
+            }
+          }
+        ]
+      }
+    ]
+  },
   mode: 'production',
   entry: [path.join(__dirname, '../src/app.ts')],
   node: {

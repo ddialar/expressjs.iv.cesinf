@@ -1,7 +1,6 @@
 import { connect, disconnect } from '../../../core'
-import { Post } from '../../../models'
 import { PostCommentDto, PostDto } from '../../../../../dtos'
-import { testingLikedAndCommentedPersistedDtoPosts } from '../../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, savePosts, cleanPostsCollection } from '../../../../../../test/fixtures'
 
 import { getComment } from '../../post.mongodb.requests'
 
@@ -14,11 +13,11 @@ describe('[ORM] MongoDB - Posts - getComment', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(mockedPosts)
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

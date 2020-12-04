@@ -1,7 +1,6 @@
 import { connect, disconnect } from '../../../core'
-import { Post } from '../../../models'
 import { PostDto, PostLikeOwnerDto } from '../../../../../dtos'
-import { testingLikedAndCommentedPersistedDtoPosts } from '../../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, savePosts, cleanPostsCollection } from '../../../../../../test/fixtures'
 
 import { getLikeByOwnerId } from '../../post.mongodb.requests'
 
@@ -19,11 +18,11 @@ describe('[ORM] MongoDB - Posts - getLikeByOwnerId', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
+    await savePosts([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

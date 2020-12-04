@@ -1,7 +1,7 @@
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 import { PostDomainModel } from '../../../models'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, savePosts, cleanPostsCollection } from '../../../../test/fixtures'
 
 import { getPosts } from '../..'
 import { GettingPostError } from '../../../errors/PostErrors'
@@ -11,15 +11,15 @@ const mockedPosts = testingLikedAndCommentedPersistedDtoPosts as PostDto[]
 const resultPosts = testingLikedAndCommentedPersistedDomainModelPosts as PostDomainModel[]
 
 describe('[SERVICES] Post - getPosts', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(mockedPosts)
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

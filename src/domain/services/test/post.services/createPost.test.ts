@@ -1,13 +1,13 @@
 import { lorem } from 'faker'
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
-import { testingDomainModelPostOwners } from '../../../../test/fixtures'
+import { testingDomainModelPostOwners, cleanUsersCollection } from '../../../../test/fixtures'
 
 import { createPost } from '../../'
 import { CreatingPostError } from '../../../errors/PostErrors'
 
 describe('[SERVICES] Post - createPost', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const owner = testingDomainModelPostOwners[0]
   const postBody = lorem.paragraph()
@@ -17,11 +17,11 @@ describe('[SERVICES] Post - createPost', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 

@@ -1,14 +1,14 @@
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 import { PostDomainModel, PostLikeOwnerDomainModel } from '../../../models'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, savePosts, cleanPostsCollection } from '../../../../test/fixtures'
 
 import { getPostLikeByOwnerId } from '../..'
 import { GettingPostLikeError } from '../../../errors/PostErrors'
 import { PostDto } from '../../../../infrastructure/dtos'
 
 describe('[SERVICES] Post - getPostLikeByOwnerId', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedDtoPosts = testingLikedAndCommentedPersistedDtoPosts as PostDto[]
   const mockedCompleteDtoPost = JSON.parse(JSON.stringify(mockedDtoPosts[0]))
@@ -24,11 +24,11 @@ describe('[SERVICES] Post - getPostLikeByOwnerId', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
+    await savePosts([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

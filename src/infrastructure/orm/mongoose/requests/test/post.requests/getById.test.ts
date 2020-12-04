@@ -1,7 +1,6 @@
 import { connect, disconnect } from '../../../core'
-import { Post } from '../../../models'
 import { PostDto } from '../../../../../dtos'
-import { testingLikedAndCommentedPersistedDtoPosts } from '../../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, savePosts, cleanPostsCollection } from '../../../../../../test/fixtures'
 
 import { getById } from '../../post.mongodb.requests'
 
@@ -12,11 +11,11 @@ describe('[ORM] MongoDB - Posts - getById', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(mockedPosts)
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

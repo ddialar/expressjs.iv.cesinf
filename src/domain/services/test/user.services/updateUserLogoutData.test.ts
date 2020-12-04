@@ -2,7 +2,7 @@ import { mongodb } from '../../../../infrastructure/orm'
 import { UserDto } from '../../../../infrastructure/dtos'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { UpdatingUserError } from '../../../errors'
-import { testingUsers } from './../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, saveUser, getUserByUsername } from './../../../../test/fixtures'
 
 import { updateUserLogoutData } from '../../user.services'
 
@@ -20,12 +20,12 @@ describe('[SERVICES] User - updateUserLogoutData', () => {
 
   beforeAll(async () => {
     await connect()
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
@@ -39,9 +39,9 @@ describe('[SERVICES] User - updateUserLogoutData', () => {
 
     await updateUserLogoutData(userId)
 
-    const updatedUser = (await User.findOne({ username }))?.toJSON() as UserDto
+    const updatedUser = await getUserByUsername(username)
 
-    expect(updatedUser.token).toBeNull()
+    expect(updatedUser.token).toBe('')
 
     done()
   })
@@ -51,7 +51,7 @@ describe('[SERVICES] User - updateUserLogoutData', () => {
       throw new UpdatingUserError('Testing error')
     })
 
-    const { _id: userId } = (await User.findOne({ username }))?.toJSON() as UserDto
+    const { _id: userId } = await getUserByUsername(username)
 
     try {
       await updateUserLogoutData(userId)

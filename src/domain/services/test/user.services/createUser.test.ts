@@ -3,15 +3,14 @@ import { mongodb } from '../../../../infrastructure/orm'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { NewUserDomainModel } from '../../../models'
 import { NewUserAlreadyExistsError, CreatingUserError } from '../../../errors'
-import { testingUsers } from './../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, getUserByUsername } from './../../../../test/fixtures'
 
 import { createUser } from '../..'
-import { UserDto } from '../../../../infrastructure/dtos'
 
 const { username, password, email } = testingUsers[0]
 
 describe('[SERVICES] User - createUser', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedUserData: NewUserDomainModel = {
     username,
@@ -24,11 +23,11 @@ describe('[SERVICES] User - createUser', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
@@ -37,7 +36,7 @@ describe('[SERVICES] User - createUser', () => {
 
     await createUser(newUserData)
 
-    const retrievedUser = (await User.findOne({ username: newUserData.username }))?.toJSON() as UserDto
+    const retrievedUser = await getUserByUsername(username)
 
     const expectedFields = ['_id', 'username', 'password', 'email', 'name', 'surname', 'avatar', 'token', 'enabled', 'deleted', 'lastLoginAt', 'createdAt', 'updatedAt']
     const retrievedUserFields = Object.keys(retrievedUser).sort()
@@ -53,11 +52,11 @@ describe('[SERVICES] User - createUser', () => {
     expect(retrievedUser.createdAt).not.toBeNull()
     expect(retrievedUser.updatedAt).not.toBeNull()
 
-    expect(retrievedUser.name).toBeNull()
-    expect(retrievedUser.surname).toBeNull()
-    expect(retrievedUser.avatar).toBeNull()
-    expect(retrievedUser.token).toBeNull()
-    expect(retrievedUser.lastLoginAt).toBeNull()
+    expect(retrievedUser.name).toBe('')
+    expect(retrievedUser.surname).toBe('')
+    expect(retrievedUser.avatar).toBe('')
+    expect(retrievedUser.token).toBe('')
+    expect(retrievedUser.lastLoginAt).toBe('')
 
     done()
   })

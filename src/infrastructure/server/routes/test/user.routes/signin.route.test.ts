@@ -5,14 +5,14 @@ import { server } from '../../../server'
 import { mongodb } from '../../../../orm'
 
 import { CREATED, BAD_REQUEST } from '../../../../../domain/errors'
-import { NewUserInputDto, UserDto } from '../../../../dtos'
+import { NewUserInputDto } from '../../../../dtos'
 
-import { testingUsers } from '../../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, getUserByUsername, saveUser } from '../../../../../test/fixtures'
 
 const { email, password } = testingUsers[0]
 
 describe('[POST] /signin', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
   let request: SuperTest<Test>
 
   beforeAll(async () => {
@@ -21,11 +21,11 @@ describe('[POST] /signin', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
@@ -43,7 +43,7 @@ describe('[POST] /signin', () => {
       .then(async ({ text }) => {
         expect(text).toBe('User created')
 
-        const retrievedUser = (await User.findOne({ username: newUserData.email }))?.toJSON() as UserDto
+        const retrievedUser = await getUserByUsername(newUserData.email)
 
         const expectedFields = ['_id', 'username', 'password', 'email', 'name', 'surname', 'avatar', 'token', 'enabled', 'deleted', 'lastLoginAt', 'createdAt', 'updatedAt']
         const retrievedUserFields = Object.keys(retrievedUser).sort()
@@ -59,11 +59,11 @@ describe('[POST] /signin', () => {
         expect(retrievedUser.createdAt).not.toBeNull()
         expect(retrievedUser.updatedAt).not.toBeNull()
 
-        expect(retrievedUser.name).toBeNull()
-        expect(retrievedUser.surname).toBeNull()
-        expect(retrievedUser.avatar).toBeNull()
-        expect(retrievedUser.token).toBeNull()
-        expect(retrievedUser.lastLoginAt).toBeNull()
+        expect(retrievedUser.name).toBe('')
+        expect(retrievedUser.surname).toBe('')
+        expect(retrievedUser.avatar).toBe('')
+        expect(retrievedUser.token).toBe('')
+        expect(retrievedUser.lastLoginAt).toBe('')
       })
 
     done()
@@ -73,7 +73,7 @@ describe('[POST] /signin', () => {
     const newUserData = { ...mockedUserData }
     const errorMessage = 'User already exists'
 
-    await (new User({ ...newUserData, username: newUserData.email })).save()
+    await saveUser({ ...newUserData, username: newUserData.email })
 
     await request
       .post('/signin')

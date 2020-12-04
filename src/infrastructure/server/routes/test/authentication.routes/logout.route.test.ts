@@ -5,16 +5,15 @@ import { mongodb } from '../../../../orm'
 
 import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from '../../../../../domain/errors'
 
-import { UserDomainModel } from '../../../../../domain/models'
 import { userDataSource } from '../../../../dataSources'
 
-import { testingUsers, testingExpiredJwtToken, testingValidJwtTokenForNonPersistedUser } from '../../../../../test/fixtures'
+import { testingUsers, testingExpiredJwtToken, testingValidJwtTokenForNonPersistedUser, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../../test/fixtures'
 
 const { username, password, email, token } = testingUsers[0]
 
 describe('[API] - Authentication endpoints', () => {
   describe('[POST] /logout', () => {
-    const { connect, disconnect, models: { User } } = mongodb
+    const { connect, disconnect } = mongodb
     const mockedUserData = {
       username,
       password,
@@ -29,12 +28,12 @@ describe('[API] - Authentication endpoints', () => {
     })
 
     beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserData)
     })
 
     afterAll(async () => {
-      await User.deleteMany({})
+      await cleanUsersCollection()
       await disconnect()
     })
 
@@ -47,9 +46,9 @@ describe('[API] - Authentication endpoints', () => {
         .then(async ({ text }) => {
           expect(text).toBe('User logged out successfully')
 
-          const editedUser = (await User.findOne({ username }))?.toJSON() as UserDomainModel
+          const editedUser = await getUserByUsername(username)
 
-          expect(editedUser.token).toBeNull()
+          expect(editedUser.token).toBe('')
         })
 
       done()

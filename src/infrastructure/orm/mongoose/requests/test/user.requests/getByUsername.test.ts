@@ -1,7 +1,7 @@
 import { connect, disconnect } from '../../../core'
 import { User } from '../../../models'
 import { UserDto, NewUserDatabaseDto } from '../../../../../dtos'
-import { testingUsers, testingNonPersistedUsername } from '../../../../../../test/fixtures'
+import { testingUsers, testingNonPersistedUsername, cleanUsersCollection } from '../../../../../../test/fixtures'
 
 import { getByUsername } from '../../user.mongodb.requests'
 
@@ -19,11 +19,11 @@ describe('[ORM] MongoDB - getByUsername', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
@@ -55,11 +55,11 @@ describe('[ORM] MongoDB - getByUsername', () => {
     expect(retrievedUser.createdAt).not.toBeNull()
     expect(retrievedUser.updatedAt).not.toBeNull()
 
-    expect(retrievedUser.name).toBeNull()
-    expect(retrievedUser.surname).toBeNull()
-    expect(retrievedUser.avatar).toBeNull()
-    expect(retrievedUser.token).toBeNull()
-    expect(retrievedUser.lastLoginAt).toBeNull()
+    expect(retrievedUser.name).toBe('')
+    expect(retrievedUser.surname).toBe('')
+    expect(retrievedUser.avatar).toBe('')
+    expect(retrievedUser.token).toBe('')
+    expect(retrievedUser.lastLoginAt).toBe('')
 
     done()
   })

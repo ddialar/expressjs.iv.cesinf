@@ -1,5 +1,5 @@
 import { User } from '../models/user.mongodb.model'
-import { UserDto, NewUserDatabaseDto, UpdateUserPayloadDto, UserProfileDto, NewUserProfileDto } from '../../../dtos'
+import { UserDto, NewUserDatabaseDto, UpdateUserPayloadDto, UserProfileDto } from '../../../dtos'
 
 export const create = async (newUserData: NewUserDatabaseDto): Promise<void> => {
   await (new User(newUserData)).save()
@@ -15,13 +15,11 @@ export const getProfileById = async (id: string): Promise<UserProfileDto | null>
   return profile ? JSON.parse(JSON.stringify(profile)) : profile
 }
 
-// REFACTOR (MongoDB) Extract the updating user process to a single function.
-export const updateById = async (id: string, payload: UpdateUserPayloadDto): Promise<void> => {
+export const updateById = async (id: string, payload: UpdateUserPayloadDto): Promise<UserDto | null> => {
   // NOTE: Besides to define the fields as 'immutable' in the schema definition, it's required to use the 'strict' option 'cos in opposite, the field can be overwriten anyway :(
-  await User.updateOne({ _id: id }, payload, { strict: 'throw' })
-}
+  const update = payload
+  const options = { new: true, strict: 'throw' }
 
-export const updateProfileById = async (id: string, payload: NewUserProfileDto): Promise<void> => {
-  // NOTE: Besides to define the fields as 'immutable' in the schema definition, it's required to use the 'strict' option 'cos in opposite, the field can be overwriten anyway :(
-  await User.updateOne({ _id: id }, payload, { strict: 'throw' })
+  const updatedUser = await User.findByIdAndUpdate(id, update, options)
+  return updatedUser ? updatedUser.toJSON() as UserDto : null
 }

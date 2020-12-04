@@ -13,9 +13,15 @@
         "test": "npm run test_infra:up && npm run test_mock:users && jest --runInBand --detectOpenHandles && npm run test_infra:down",
         "test_infra:up": "docker-compose --env-file docker/test/.docker.env -f docker/docker-compose.yml up -d",
         "test_infra:down": "docker-compose --env-file docker/test/.docker.env -f docker/docker-compose.yml down -v",
-        "test_mock:users": "node src/test/fixtures/mockers/runMockers.js"
+        "test_mock:data": "node src/test/fixtures/mockers/runMockers.js"
     },
-    "keywords": ["backend", "expressjs", "typescript", "jest", "openapi"],
+    "keywords": [
+        "backend",
+        "expressjs",
+        "typescript",
+        "jest",
+        "openapi"
+    ],
     "author": "Dailos Rafael Díaz Lara <https://github.com/ddialar>",
     "license": "See licence file",
     "devDependencies": {

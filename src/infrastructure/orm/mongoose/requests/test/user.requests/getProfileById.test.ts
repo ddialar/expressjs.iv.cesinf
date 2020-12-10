@@ -1,9 +1,8 @@
 import { connect, disconnect } from '../../../core'
-import { User } from '../../../models'
-import { UserDto, UserProfileDto } from '../../../../../dtos'
+import { UserProfileDto } from '../../../../../dtos'
 
 import { getProfileById } from '../../user.mongodb.requests'
-import { testingUsers, testingNonValidUserId } from '../../../../../../test/fixtures'
+import { testingUsers, testingNonValidUserId, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../../../test/fixtures'
 
 const { username, password, email, avatar, name, surname } = testingUsers[0]
 
@@ -23,12 +22,12 @@ describe('[ORM] MongoDB - getProfileById', () => {
 
   beforeAll(async () => {
     await connect()
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
@@ -41,7 +40,7 @@ describe('[ORM] MongoDB - getProfileById', () => {
   })
 
   it('must retrieve selected user\'s profile', async (done) => {
-    const { _id: userId } = (await User.findOne({ username }))?.toJSON() as UserDto
+    const { _id: userId } = await getUserByUsername(username)
     const retrievedUserProfile = await getProfileById(userId) as UserProfileDto
 
     const expectedFields = ['username', 'email', 'name', 'surname', 'avatar']

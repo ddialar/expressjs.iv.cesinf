@@ -2,7 +2,7 @@ import { mongodb } from '../../../../infrastructure/orm'
 import { UserDto, NewUserDatabaseDto } from '../../../../infrastructure/dtos'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { UpdatingUserError } from '../../../errors'
-import { testingUsers } from './../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, saveUser, getUserByUsername } from './../../../../test/fixtures'
 
 import { updateUserLoginData } from '../../user.services'
 
@@ -22,17 +22,17 @@ describe('[SERVICES] User - updateUserLoginData', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
   it('must update several allowed fields successfully', async (done) => {
     const newUserData: NewUserDatabaseDto = { ...mockedUserData }
-    await (new User(newUserData)).save()
+    await saveUser(newUserData)
 
     const originalUser = (await User.findOne({ username: newUserData.username }))?.toJSON() as UserDto
 
@@ -49,11 +49,11 @@ describe('[SERVICES] User - updateUserLoginData', () => {
     expect(originalUser.createdAt).not.toBeNull()
     expect(originalUser.updatedAt).not.toBeNull()
 
-    expect(originalUser.name).toBeNull()
-    expect(originalUser.surname).toBeNull()
-    expect(originalUser.avatar).toBeNull()
-    expect(originalUser.token).toBeNull()
-    expect(originalUser.lastLoginAt).toBeNull()
+    expect(originalUser.name).toBe('')
+    expect(originalUser.surname).toBe('')
+    expect(originalUser.avatar).toBe('')
+    expect(originalUser.token).toBe('')
+    expect(originalUser.lastLoginAt).toBe('')
 
     const userId = originalUser._id
 
@@ -89,9 +89,9 @@ describe('[SERVICES] User - updateUserLoginData', () => {
     })
 
     const newUserData: NewUserDatabaseDto = { ...mockedUserData }
-    await (new User(newUserData)).save()
+    await saveUser(newUserData)
 
-    const { _id: userId } = (await User.findOne({ username: newUserData.username }))?.toJSON() as UserDto
+    const { _id: userId } = await getUserByUsername(username)
 
     try {
       await updateUserLoginData(userId, token)

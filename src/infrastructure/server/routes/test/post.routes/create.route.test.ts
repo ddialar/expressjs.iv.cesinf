@@ -9,7 +9,7 @@ import { PostDomainModel, PostOwnerDomainModel } from '../../../../../domain/mod
 import { postDataSource } from '../../../../dataSources'
 import { UserProfileDto } from '../../../../dtos'
 
-import { testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken } from '../../../../../test/fixtures'
+import { testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken, cleanUsersCollection, cleanPostsCollection, saveUser } from '../../../../../test/fixtures'
 
 const { username, password, email, avatar, name, surname, token: validToken } = testingUsers[0]
 
@@ -19,7 +19,7 @@ interface TestingProfileDto extends UserProfileDto {
 
 describe('[API] - Posts endpoints', () => {
   describe('[POST] /posts/create', () => {
-    const { connect, disconnect, models: { User, Post } } = mongodb
+    const { connect, disconnect } = mongodb
 
     const postBody = lorem.paragraph()
     const mockedUserData: TestingProfileDto = {
@@ -36,17 +36,17 @@ describe('[API] - Posts endpoints', () => {
     beforeAll(async () => {
       request = supertest(server)
       await connect()
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserData)
     })
 
     beforeEach(async () => {
-      await Post.deleteMany({})
+      await cleanPostsCollection()
     })
 
     afterAll(async () => {
-      await User.deleteMany({})
-      await Post.deleteMany({})
+      await cleanUsersCollection()
+      await cleanPostsCollection()
       await disconnect()
     })
 

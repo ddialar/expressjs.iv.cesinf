@@ -1,14 +1,14 @@
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 import { PostDomainModel } from '../../../models'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, savePosts, cleanPostsCollection } from '../../../../test/fixtures'
 
 import { getPostById } from '../..'
 import { GettingPostError } from '../../../errors/PostErrors'
 import { PostDto } from '../../../../infrastructure/dtos'
 
 describe('[SERVICES] Post - getPostById', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedPosts = testingLikedAndCommentedPersistedDtoPosts as PostDto[]
   const resultPosts = testingLikedAndCommentedPersistedDomainModelPosts as PostDomainModel[]
@@ -17,11 +17,11 @@ describe('[SERVICES] Post - getPostById', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(mockedPosts)
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

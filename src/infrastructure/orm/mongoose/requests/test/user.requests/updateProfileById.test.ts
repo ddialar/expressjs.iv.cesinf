@@ -1,9 +1,8 @@
 import { connect, disconnect } from '../../../core'
-import { User } from '../../../models'
-import { UserDto, UserProfileDto, NewUserProfileDto } from '../../../../../dtos'
+import { UserProfileDto, NewUserProfileDto } from '../../../../../dtos'
 
 import { updateProfileById } from '../../user.mongodb.requests'
-import { testingUsers } from '../../../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../../../test/fixtures'
 
 const { username, password, email, avatar, name, surname, token } = testingUsers[0]
 
@@ -28,17 +27,17 @@ describe('[ORM] MongoDB - updateProfileById', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
   it('must update the user\'s profile successfully', async (done) => {
-    const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
+    const originalUser = await getUserByUsername(username)
 
     const expectedFields = ['_id', 'username', 'password', 'email', 'name', 'surname', 'avatar', 'token', 'enabled', 'deleted', 'lastLoginAt', 'createdAt', 'updatedAt']
     const originalUserFields = Object.keys(originalUser).sort()
@@ -57,7 +56,7 @@ describe('[ORM] MongoDB - updateProfileById', () => {
     expect(originalUser.createdAt).not.toBeNull()
     expect(originalUser.updatedAt).not.toBeNull()
 
-    expect(originalUser.lastLoginAt).toBeNull()
+    expect(originalUser.lastLoginAt).toBe('')
 
     const { name: newName, surname: newSurname, avatar: newAvatar } = testingUsers[1]
     const payload: NewUserProfileDto = {
@@ -68,7 +67,7 @@ describe('[ORM] MongoDB - updateProfileById', () => {
 
     await updateProfileById(originalUser._id, payload)
 
-    const updatedUser = (await User.findOne({ username }))?.toJSON() as UserDto
+    const updatedUser = await getUserByUsername(username)
 
     const updatedUserFields = Object.keys(updatedUser).sort()
     expect(updatedUserFields.sort()).toEqual(expectedFields.sort())

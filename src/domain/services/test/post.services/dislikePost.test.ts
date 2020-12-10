@@ -1,14 +1,14 @@
 import { mongodb } from '../../../../infrastructure/orm'
 import { postDataSource } from '../../../../infrastructure/dataSources'
 import { PostDomainModel } from '../../../models'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, cleanPostsCollection, savePosts, getPostById } from '../../../../test/fixtures'
 
 import { dislikePost } from '../..'
 import { DeletingPostLikeError, GettingPostError, GettingPostLikeError, PostNotFoundError } from '../../../errors'
 import { PostDto } from '../../../../infrastructure/dtos'
 
 describe('[SERVICES] Post - dislikePost', () => {
-  const { connect, disconnect, models: { Post } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedDtoPosts = testingLikedAndCommentedPersistedDtoPosts as PostDto[]
   const mockedCompleteDtoPost = JSON.parse(JSON.stringify(mockedDtoPosts[0]))
@@ -27,12 +27,12 @@ describe('[SERVICES] Post - dislikePost', () => {
   })
 
   beforeEach(async () => {
-    await Post.deleteMany({})
-    await Post.insertMany([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
+    await cleanPostsCollection()
+    await savePosts([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 
@@ -42,7 +42,7 @@ describe('[SERVICES] Post - dislikePost', () => {
 
     await dislikePost(postId, likeOwnerId)
 
-    const { likes: updatedDtoLikes } = (await Post.findById(postId))?.toJSON() as PostDto
+    const { likes: updatedDtoLikes } = await getPostById(postId)
 
     expect(updatedDtoLikes).toHaveLength(selectedPost.likes.length - 1)
     expect(updatedDtoLikes.map(({ userId }) => userId).includes(likeOwnerId)).toBeFalsy()
@@ -56,7 +56,7 @@ describe('[SERVICES] Post - dislikePost', () => {
 
     await dislikePost(postId, likeOwnerId)
 
-    const { likes: updatedDtoLikes } = (await Post.findById(postId))?.toJSON() as PostDto
+    const { likes: updatedDtoLikes } = await getPostById(postId)
 
     expect(updatedDtoLikes).toHaveLength(selectedPost.likes.length)
 

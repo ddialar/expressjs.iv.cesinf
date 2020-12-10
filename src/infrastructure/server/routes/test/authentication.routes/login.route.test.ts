@@ -9,13 +9,13 @@ import { userDataSource } from '../../../../dataSources'
 
 import * as hashServices from '../../../../../domain/services/hash.services'
 import * as token from '../../../../authentication/token'
-import { testingUsers, testingValidPlainPassword } from '../../../../../test/fixtures'
+import { testingUsers, testingValidPlainPassword, cleanUsersCollection, saveUser } from '../../../../../test/fixtures'
 
 const { username, password, email } = testingUsers[0]
 
 describe('[API] - Authentication endpoints', () => {
   describe('[POST] /login', () => {
-    const { connect, disconnect, models: { User } } = mongodb
+    const { connect, disconnect } = mongodb
 
     const mockedUserData: NewUserDatabaseDto = {
       username,
@@ -31,12 +31,12 @@ describe('[API] - Authentication endpoints', () => {
     })
 
     beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserData)
     })
 
     afterAll(async () => {
-      await User.deleteMany({})
+      await cleanUsersCollection()
       await disconnect()
     })
 
@@ -55,8 +55,8 @@ describe('[API] - Authentication endpoints', () => {
           expect(retrievedAuthenticationDataFields.sort()).toEqual(expectedFields.sort())
 
           expect(body.username).toBe(loginData.username)
-          expect(body.avatar).toBeNull()
-          expect(body.token).not.toBeNull()
+          expect(body.avatar).toBe('')
+          expect(body.token).not.toBe('')
         })
 
       done()

@@ -1,8 +1,7 @@
 import { lorem } from 'faker'
 import { connect, disconnect } from '../../../core'
-import { Post } from '../../../models'
 import { PostCommentDto, PostDto } from '../../../../../dtos'
-import { testingLikedAndCommentedPersistedDtoPosts, testingDtoFreeUsers } from '../../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingDtoFreeUsers, savePosts, cleanPostsCollection } from '../../../../../../test/fixtures'
 
 import { createComment } from '../../post.mongodb.requests'
 
@@ -11,11 +10,11 @@ describe('[ORM] MongoDB - Posts - createComment', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(mockedPosts)
+    await savePosts(mockedPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

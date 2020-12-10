@@ -1,20 +1,17 @@
-import { WrongUsernameError } from './../../../errors/AuthenticationErrors/401.unauthorized/WrongUsernameError'
-import { UpdatingUserError } from './../../../errors/UserErrors/500.internal.server.error/UpdatingUserError'
-import { CheckingPasswordError } from './../../../errors/AuthenticationErrors/500.internal.server.error/CheckingPasswordError'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { mongodb } from '../../../../infrastructure/orm'
-import { GettingTokenError, GettingUserError, WrongPasswordError } from '../../../errors'
-import { UserDomainModel, NewUserDomainModel } from '../../../models'
+import { GettingTokenError, GettingUserError, WrongPasswordError, WrongUsernameError, UpdatingUserError, CheckingPasswordError } from '../../../errors'
+import { NewUserDomainModel } from '../../../models'
 import * as hashServices from '../../hash.services'
 import * as token from '../../../../infrastructure/authentication/token'
-import { testingUsers, testingValidPlainPassword } from '../../../../test/fixtures'
+import { testingUsers, testingValidPlainPassword, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../test/fixtures'
 
 import { login } from '../../authentication.services'
 
 const { username, password, email } = testingUsers[0]
 
 describe('[SERVICES] Authentication - login', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
   const plainPassword = testingValidPlainPassword
   const mockedUserData: NewUserDomainModel = {
     username,
@@ -24,12 +21,12 @@ describe('[SERVICES] Authentication - login', () => {
 
   beforeAll(async () => {
     await connect()
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
@@ -40,22 +37,22 @@ describe('[SERVICES] Authentication - login', () => {
     const { username } = mockedUserData
     const password = plainPassword
 
-    const unauthenticatedUser = (await User.findOne({ username }))?.toJSON() as UserDomainModel
+    const unauthenticatedUser = await getUserByUsername(username)
 
-    expect(unauthenticatedUser.token).toBeNull()
-    expect(unauthenticatedUser.avatar).toBeNull()
-    expect(unauthenticatedUser.lastLoginAt).toBeNull()
+    expect(unauthenticatedUser.token).toBe('')
+    expect(unauthenticatedUser.avatar).toBe('')
+    expect(unauthenticatedUser.lastLoginAt).toBe('')
 
     const authenticationData = await login(username, password)
 
-    expect(authenticationData.token).not.toBeNull()
+    expect(authenticationData.token).not.toBe('')
     expect(authenticationData.username).toBe(username)
-    expect(authenticationData.avatar).toBeNull()
+    expect(authenticationData.avatar).toBe('')
 
-    const authenticatedUser = (await User.findOne({ username: username }))?.toJSON() as UserDomainModel
+    const authenticatedUser = await getUserByUsername(username)
 
     expect(authenticatedUser.token).toBe(authenticationData.token)
-    expect(authenticatedUser.lastLoginAt).not.toBeNull()
+    expect(authenticatedUser.lastLoginAt).not.toBe('')
 
     done()
   })
@@ -143,7 +140,7 @@ describe('[SERVICES] Authentication - login', () => {
     const { username } = mockedUserData
     const password = plainPassword
 
-    const { id: userId } = (await User.findOne({ username }))?.toJSON() as UserDomainModel
+    const { _id: userId } = await getUserByUsername(username)
 
     try {
       await login(username, password)

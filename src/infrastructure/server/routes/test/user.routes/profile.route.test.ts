@@ -6,9 +6,9 @@ import { mongodb } from '../../../../orm'
 import { BAD_REQUEST, OK, FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR } from '../../../../../domain/errors'
 import { UserProfileDomainModel } from '../../../../../domain/models'
 import { userDataSource } from '../../../../dataSources'
-import { NewUserDatabaseDto, NewUserProfileDto, UserDto, UserProfileDto } from '../../../../dtos'
+import { NewUserDatabaseDto, NewUserProfileDto, UserProfileDto } from '../../../../dtos'
 
-import { testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken } from '../../../../../test/fixtures'
+import { testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../../test/fixtures'
 
 const { username, password, email, avatar, name, surname, token: validToken } = testingUsers[0]
 
@@ -17,7 +17,7 @@ interface TestingProfileDto extends UserProfileDto {
 }
 
 describe('[API] - User endpoints', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
 
   let request: SuperTest<Test>
 
@@ -41,12 +41,12 @@ describe('[API] - User endpoints', () => {
     }
 
     beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserData)
     })
 
     afterEach(async () => {
-      await User.deleteMany({})
+      await cleanUsersCollection()
     })
 
     it('must return a 200 (OK) and the user\'s profile data', async (done) => {
@@ -153,16 +153,16 @@ describe('[API] - User endpoints', () => {
     }
 
     beforeEach(async () => {
-      await User.deleteMany({})
-      await (new User(mockedUserData)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserData)
     })
 
     afterEach(async () => {
-      await User.deleteMany({})
+      await cleanUsersCollection()
     })
 
     it('must return a 200 (OK) and the user\'s profile data', async (done) => {
-      const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
+      const originalUser = await getUserByUsername(username)
       const token = `bearer ${validToken}`
 
       await request

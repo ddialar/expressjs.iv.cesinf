@@ -2,7 +2,7 @@ import { mongodb } from '../../../../infrastructure/orm'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { UserDomainModel, UserProfileDomainModel } from '../../../models'
 import { GettingUserError, GettingUserProfileError } from '../../../errors'
-import { testingNonValidUserId, testingUsers } from './../../../../test/fixtures'
+import { testingNonValidUserId, testingUsers, cleanUsersCollection, saveUser } from './../../../../test/fixtures'
 
 import { getUserProfile } from '../..'
 import { UserDto } from '../../../../infrastructure/dtos'
@@ -27,12 +27,12 @@ describe('[SERVICES] User - getUserProfile', () => {
 
   beforeAll(async () => {
     await connect()
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 

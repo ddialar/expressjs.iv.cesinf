@@ -1,16 +1,15 @@
 import { mongodb } from '../../../../infrastructure/orm'
-import { UserDto } from '../../../../infrastructure/dtos'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { UpdatingUserError } from '../../../errors'
 import { NewUserProfileDomainModel, UserProfileDomainModel } from '../../../models'
-import { testingUsers, testingAvatarUrls } from './../../../../test/fixtures'
+import { testingUsers, testingAvatarUrls, cleanUsersCollection, saveUser, getUserByUsername } from './../../../../test/fixtures'
 
 import { updateUserProfile } from '../../user.services'
 
 const { username, password, email, avatar, name, surname, token } = testingUsers[0]
 
 describe('[SERVICES] User - updateUserProfile', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
 
   const mockedUserData = {
     username,
@@ -27,17 +26,17 @@ describe('[SERVICES] User - updateUserProfile', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
   it('must update the user\'s profile and return the final result', async (done) => {
-    const originalUser = (await User.findOne({ username }))?.toJSON() as UserDto
+    const originalUser = await getUserByUsername(username)
 
     expect(originalUser.name).toBe(mockedUserData.name)
     expect(originalUser.surname).toBe(mockedUserData.surname)
@@ -67,7 +66,7 @@ describe('[SERVICES] User - updateUserProfile', () => {
       throw new Error('Testing error')
     })
 
-    const { _id: userId } = (await User.findOne({ username }))?.toJSON() as UserDto
+    const { _id: userId } = await getUserByUsername(username)
     const newProfileData: NewUserProfileDomainModel = {
       name: 'Jane',
       surname: 'Doe',

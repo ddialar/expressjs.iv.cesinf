@@ -1,16 +1,15 @@
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { mongodb } from '../../../../infrastructure/orm'
 import { UpdatingUserError } from '../../../errors'
-import { NewUserDomainModel, UserDomainModel } from '../../../models'
-import { testingUsers } from '../../../../test/fixtures'
+import { NewUserDomainModel } from '../../../models'
+import { testingUsers, cleanUsersCollection, saveUser, getUserByUsername } from '../../../../test/fixtures'
 
 import { logout } from '../../authentication.services'
-import { UserDto } from '../../../../infrastructure/dtos'
 
 const { username, password, email, token } = testingUsers[0]
 
 describe('[SERVICES] Authentication - logout', () => {
-  const { connect, disconnect, models: { User } } = mongodb
+  const { connect, disconnect } = mongodb
   const mockedUserData: NewUserDomainModel & { token: string } = {
     username,
     password,
@@ -20,12 +19,12 @@ describe('[SERVICES] Authentication - logout', () => {
 
   beforeAll(async () => {
     await connect()
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
-    await (new User(mockedUserData)).save()
+    await cleanUsersCollection()
+    await saveUser(mockedUserData)
   })
 
   afterAll(async () => {
@@ -34,15 +33,15 @@ describe('[SERVICES] Authentication - logout', () => {
 
   it('must logout the user and remove the persisted token', async (done) => {
     const { username } = mockedUserData
-    const authenticatedUser = (await User.findOne({ username }))?.toJSON() as UserDto
+    const authenticatedUser = await getUserByUsername(username)
     expect(authenticatedUser.token).toBe(token)
 
     const { _id: userId } = authenticatedUser
     await logout(userId)
 
-    const unauthenticatedUser = (await User.findOne({ username }))?.toJSON() as UserDomainModel
+    const unauthenticatedUser = await getUserByUsername(username)
 
-    expect(unauthenticatedUser.token).toBeNull()
+    expect(unauthenticatedUser.token).toBe('')
 
     done()
   })
@@ -53,7 +52,7 @@ describe('[SERVICES] Authentication - logout', () => {
     })
 
     const { username } = mockedUserData
-    const { _id: userId } = (await User.findOne({ username }))?.toJSON() as UserDto
+    const { _id: userId } = await getUserByUsername(username)
 
     try {
       await logout(userId)

@@ -8,7 +8,7 @@ import { PostCommentOwnerDomainModel, PostDomainModel, PostLikeOwnerDomainModel,
 import { postDataSource } from '../../../../dataSources'
 import { PostDto, UserProfileDto } from '../../../../dtos'
 
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers, testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken } from '../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers, testingUsers, testingValidJwtTokenForNonPersistedUser, testingExpiredJwtToken, cleanUsersCollection, cleanPostsCollection, saveUser, savePosts, getPostById } from '../../../../../test/fixtures'
 import { mapPostFromDtoToDomainModel } from '../../../../mappers'
 
 describe('[API] - Posts endpoints', () => {
@@ -18,7 +18,7 @@ describe('[API] - Posts endpoints', () => {
       password: string
     }
 
-    const { connect, disconnect, models: { User, Post } } = mongodb
+    const { connect, disconnect } = mongodb
 
     const mockedPosts = testingLikedAndCommentedPersistedDomainModelPosts as PostDomainModel[]
     const originalPost = mockedPosts[0]
@@ -41,18 +41,18 @@ describe('[API] - Posts endpoints', () => {
     beforeAll(async () => {
       request = supertest(server)
       await connect()
-      await User.deleteMany({})
-      await (new User(mockedUserDataToBePersisted)).save()
+      await cleanUsersCollection()
+      await saveUser(mockedUserDataToBePersisted)
     })
 
     beforeEach(async () => {
-      await Post.deleteMany({})
-      await Post.insertMany(testingLikedAndCommentedPersistedDtoPosts)
+      await cleanPostsCollection()
+      await savePosts(testingLikedAndCommentedPersistedDtoPosts)
     })
 
     afterAll(async () => {
-      await User.deleteMany({})
-      await Post.deleteMany({})
+      await cleanUsersCollection()
+      await cleanPostsCollection()
       await disconnect()
     })
 
@@ -67,7 +67,7 @@ describe('[API] - Posts endpoints', () => {
         .send({ postId })
         .expect(OK)
         .then(async () => {
-          const updatedPost = mapPostFromDtoToDomainModel(JSON.parse(JSON.stringify(await Post.findById(postId).lean()))) as PostDomainModel
+          const updatedPost = mapPostFromDtoToDomainModel(JSON.parse(JSON.stringify(await getPostById(postId as string)))) as PostDomainModel
 
           expect(updatedPost.id).not.toBeNull()
           expect(updatedPost.body).toBe(originalPost.body)
@@ -238,18 +238,18 @@ describe('[API] - Posts endpoints', () => {
     beforeAll(async () => {
       request = supertest(server)
       await connect()
-      await User.deleteMany({})
+      await cleanUsersCollection()
       await User.insertMany([mockedPostLikeOwner, mockedUnauthorizedUserToBePersisted])
     })
 
     beforeEach(async () => {
-      await Post.deleteMany({})
+      await cleanPostsCollection()
       await Post.insertMany([mockedCompleteDtoPost, mockedEmptyLikesDtoPost])
     })
 
     afterAll(async () => {
-      await User.deleteMany({})
-      await Post.deleteMany({})
+      await cleanUsersCollection()
+      await cleanPostsCollection()
       await disconnect()
     })
 

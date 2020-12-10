@@ -1,5 +1,5 @@
 import { mongodb } from '../../../../infrastructure/orm'
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers } from '../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, testingDomainModelFreeUsers, savePosts, cleanPostsCollection } from '../../../../test/fixtures'
 
 import { likePost } from '../../'
 import { PostDomainModel, PostLikeOwnerDomainModel } from '../../../models'
@@ -16,11 +16,11 @@ describe('[SERVICES] Post - likePost', () => {
 
   beforeAll(async () => {
     await connect()
-    await Post.insertMany(testingLikedAndCommentedPersistedDtoPosts)
+    await savePosts(testingLikedAndCommentedPersistedDtoPosts)
   })
 
   afterAll(async () => {
-    await Post.deleteMany({})
+    await cleanPostsCollection()
     await disconnect()
   })
 

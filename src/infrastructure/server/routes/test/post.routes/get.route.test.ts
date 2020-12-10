@@ -7,25 +7,25 @@ import { OK, INTERNAL_SERVER_ERROR } from '../../../../../domain/errors'
 import { PostDomainModel } from '../../../../../domain/models'
 import { postDataSource } from '../../../../dataSources'
 
-import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts } from '../../../../../test/fixtures'
+import { testingLikedAndCommentedPersistedDtoPosts, testingLikedAndCommentedPersistedDomainModelPosts, savePosts, cleanPostsCollection } from '../../../../../test/fixtures'
 
 const mockedPosts = testingLikedAndCommentedPersistedDtoPosts
 const resultPosts = testingLikedAndCommentedPersistedDomainModelPosts
 
 describe('[API] - Posts endpoints', () => {
   describe('[GET] /posts', () => {
-    const { connect, disconnect, models: { Post } } = mongodb
+    const { connect, disconnect } = mongodb
 
     let request: SuperTest<Test>
 
     beforeAll(async () => {
       request = supertest(server)
       await connect()
-      await Post.insertMany(mockedPosts)
+      await savePosts(mockedPosts)
     })
 
     afterAll(async () => {
-      await Post.deleteMany({})
+      await cleanPostsCollection()
       await disconnect()
     })
 

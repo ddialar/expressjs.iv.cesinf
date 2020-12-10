@@ -2,7 +2,7 @@ import { mongodb } from '../../../../infrastructure/orm'
 import { userDataSource } from '../../../../infrastructure/dataSources'
 import { UserDomainModel, NewUserDomainModel } from '../../../models'
 import { GettingUserError } from '../../../errors'
-import { testingUsers } from './../../../../test/fixtures'
+import { testingUsers, cleanUsersCollection } from './../../../../test/fixtures'
 
 import { getUserByUsername } from '../..'
 
@@ -22,11 +22,11 @@ describe('[SERVICES] User - getUserByUsername', () => {
   })
 
   beforeEach(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
   })
 
   afterAll(async () => {
-    await User.deleteMany({})
+    await cleanUsersCollection()
     await disconnect()
   })
 
@@ -59,11 +59,11 @@ describe('[SERVICES] User - getUserByUsername', () => {
     expect(retrievedUser.createdAt).not.toBeNull()
     expect(retrievedUser.updatedAt).not.toBeNull()
 
-    expect(retrievedUser.name).toBeNull()
-    expect(retrievedUser.surname).toBeNull()
-    expect(retrievedUser.avatar).toBeNull()
-    expect(retrievedUser.token).toBeNull()
-    expect(retrievedUser.lastLoginAt).toBeNull()
+    expect(retrievedUser.name).toBe('')
+    expect(retrievedUser.surname).toBe('')
+    expect(retrievedUser.avatar).toBe('')
+    expect(retrievedUser.token).toBe('')
+    expect(retrievedUser.lastLoginAt).toBe('')
 
     done()
   })

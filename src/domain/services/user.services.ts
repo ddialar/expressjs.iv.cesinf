@@ -55,7 +55,7 @@ export const updateUserLoginData = async (userId: string, token: string): Promis
 
 export const updateUserLogoutData = async (userId: string): Promise<void> => {
   try {
-    await userDataSource.updateUserById(userId, { token: null })
+    await userDataSource.updateUserById(userId, { token: '' })
   } catch ({ message }) {
     throw new UpdatingUserError(`Error updating user '${userId}' logout data. ${message}`)
   }

@@ -9,11 +9,8 @@ import { UserDomainModel } from '../../../domain/models'
 const authenticationRoutes: Router = express.Router()
 
 authenticationRoutes.post('/login', async (req, res, next) => {
-  // TODO: To retrieve the login params
   const { username, password } = req.body as LoginInputParamsDto
-  // TODO: To authenticate the user.
-  // TODO: To return the authentication data.
-  // TODO: In case of error, to return its especific error object.
+
   try {
     res.json(await login(username, password))
   } catch (error) {

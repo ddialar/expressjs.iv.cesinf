@@ -8,6 +8,14 @@ const dotenv = require('dotenv').config({ path: path.join(__dirname, '../env/.en
 const common = require('./webpack.common.js')
 
 module.exports = merge(common, {
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: [{ loader: 'ts-loader' }]
+      }
+    ]
+  },
   devtool: 'inline-source-map',
   entry: ['webpack/hot/poll?1000', path.join(__dirname, '../src/app.ts')],
   externals: [

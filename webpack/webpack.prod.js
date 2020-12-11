@@ -4,7 +4,8 @@ const { merge } = require('webpack-merge')
 const nodeExternals = require('webpack-node-externals')
 const path = require('path')
 const webpack = require('webpack')
-const dotenv = require('dotenv').config({ path: path.join(__dirname, '../env/.env.dev') })
+// NOTE Pay attention to have defined the '.env' file bedore running this consigutation.
+const dotenv = require('dotenv').config({ path: path.join(__dirname, '../env/.env') })
 const common = require('./webpack.common.js')
 
 module.exports = merge(common, {

@@ -17,23 +17,18 @@ module.exports = merge(common, {
     ]
   },
   devtool: 'inline-source-map',
-  entry: ['webpack/hot/poll?1000', path.join(__dirname, '../src/app.ts')],
-  externals: [
-    nodeExternals({
-      allowlist: ['webpack/hot/poll?1000']
-    })
-  ],
+  entry: [path.join(__dirname, '../src/app.ts')],
+  externals: [nodeExternals()],
   mode: 'development',
   plugins: [
     new webpack.DefinePlugin({
       'process.env': JSON.stringify(dotenv.parsed)
     }),
     new NodemonPlugin({
-      watch: path.join(__dirname, '../src'),
+      watch: path.join(__dirname, '../dist'),
       verbose: true,
       ext: 'ts,js'
-    }),
-    new webpack.HotModuleReplacementPlugin()
+    })
   ],
   watch: true
 })
